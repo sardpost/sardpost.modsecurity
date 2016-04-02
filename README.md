@@ -3,6 +3,7 @@ Role Name: sardpost.modsecurity
 
 Ansible role for installing mod_security in Apache on EL 7 platform (RHEL/Centos 7).
 It checks if Epel repository is installed and installs Apache Httpd if not already present.
+The role downloads and installs the latest OWASP CRS Core Rule Set.
 
 Requirements
 ------------
