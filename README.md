@@ -14,8 +14,8 @@ Dependencies
 ------------
 
 This role needs two roles:
-    - geerlingguy.apache
-    - yaegashi.blockinfile (if using Ansible 2.0 not necessary as already included in core modules)
+      - geerlingguy.apache
+      - yaegashi.blockinfile (if using Ansible 2.0 not necessary as already included in core modules)
 
 Example Playbook
 ----------------
