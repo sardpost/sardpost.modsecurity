@@ -14,22 +14,22 @@ Dependencies
 ------------
 
 This role needs two roles:
-  - geerlingguy.apache
-  - yaegashi.blockinfile (if using Ansible 2.0 not necessary as already included in core modules)
+    - geerlingguy.apache
+    - yaegashi.blockinfile (if using Ansible 2.0 not necessary as already included in core modules)
 
 Example Playbook
 ----------------
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-  - name: Install Modsecurity
-    hosts: modsec
-    remote_user: centos
-    sudo: yes
+    - name: Install Modsecurity
+      hosts: modsec
+      remote_user: centos
+      sudo: yes
 
-    roles:
-      - sardpost.modsecurity
-      - yaegashi.blockinfile
+      roles:
+        - sardpost.modsecurity
+        - yaegashi.blockinfile
 
 Version:
 --------
