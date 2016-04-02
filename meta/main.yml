@@ -12,6 +12,7 @@ galaxy_info:
   categories:
   - system
   - security
+  - web
 dependencies:
 - { role: geerlingguy.apache }
 - { role: yaegashi.blockinfile }
