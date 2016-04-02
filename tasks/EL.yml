@@ -1,0 +1,66 @@
+---
+# Tasks specific for RHEL/Centos systems
+
+- name: "RHEL/Centos | Installing epel-release"
+  yum: name=epel-release state=present
+
+- name: "RHEL/Centos | Enabling epel repository"
+  ini_file: dest=/etc/yum.repos.d/epel.repo section=epel option=enabled value=1
+
+- name: "RHEL/Centos | Installing Modsecurity"
+  yum: name={{ item }} state=present
+  with_items:
+    - mod_security
+  tags:
+    - modsecurity
+    - init
+    - config
+
+- name: "RHEL/Centos | Checking if mod_security module is loaded"
+  lineinfile: dest=/etc/httpd/conf.modules.d/10-mod_security.conf regexp="^LoadModule " insertbefore=BOF line="LoadModule security2_module modules/mod_security2.so"
+
+- name: "RHEL/Centos | Creating /etc/httpd/crs directory for OWASP Core Rule Set"
+  file: path=/etc/httpd/crs state=directory seuser=system_u
+
+- name: "RHEL/Centos | Downloading latest OWASP Core Rule Set"
+  get_url: url=https://github.com/SpiderLabs/owasp-modsecurity-crs/tarball/master dest=/etc/httpd/crs/master
+  register: crs_archive
+
+- name: "RHEL/Centos | Uncompressing CRS"
+  unarchive: src=/etc/httpd/crs/master dest=/etc/httpd/crs/ copy=no
+  when: crs_archive.changed
+
+- name: "RHEL/Centos | Configuring modsecurity.."
+  shell: ls /etc/httpd/crs |grep Spider*
+  register: dir_name
+  when: crs_archive.changed
+
+- name: "RHEL/Centos | Renaming CRS directory to owasp-modsecurity-crs"
+  command: "mv /etc/httpd/crs/{{ item }} /etc/httpd/crs/owasp-modsecurity-crs"
+  when: crs_archive.changed and dir_name is defined
+  with_items: dir_name.stdout_lines
+
+- name: "RHEL/Centos | Copying modsecurity_crs_10_setup.conf.example modsecurity_crs_10_setup.conf"
+  command: "cp /etc/httpd/crs/owasp-modsecurity-crs/modsecurity_crs_10_setup.conf.example /etc/httpd/crs/owasp-modsecurity-crs/modsecurity_crs_10_setup.conf"
+  when: crs_archive.changed
+
+- name: "RHEL/Centos | Creating own configuration file in /etc/httpd/modsecurity.d/"
+  copy: src=mod_security.conf dest=/etc/httpd/modsecurity.d/mod_security.conf
+  register: modsec_conf_file
+
+- name: "RHEL/Centos | Restoring SElinux context for /etc/httpd/modsecurity.d/mod_security.conf"
+  command: "/sbin/restorecon -F /etc/httpd/modsecurity.d/mod_security.conf"
+  when: modsec_conf_file.changed
+
+- name: "RHEL/Centos | Telling Apache to use modsecurity_crs_10_setup.conf along with the module"
+  blockinfile:
+    dest: /etc/httpd/conf/httpd.conf
+    marker: "# {mark} ANSIBLE MANAGED BLOCK #"
+    backup: yes
+    insertafter: EOF
+    content: |
+      <IfModule security2_module>
+       Include /etc/httpd/crs/owasp-modsecurity-crs/modsecurity_crs_10_setup.conf
+       Include /etc/httpd/crs/owasp-modsecurity-crs/base_rules/*.conf
+      </IfModule>
+  notify: Reloading Apache Http

@@ -1,0 +1,6 @@
+---
+- src: geerlingguy.apache
+  path: roles
+- src: yaegashi.blockinfile
+  path: roles
+# yaegashi.blockinfile not needed to be defined in ansible 2.0 because already included in core modules

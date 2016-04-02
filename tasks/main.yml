@@ -1,0 +1,7 @@
+---
+
+- name: "Centos | Installing the correct repository"
+  include: "EL.yml"
+  when: ansible_os_family == "RedHat"
+  tags:
+    - always

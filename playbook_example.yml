@@ -1,0 +1,11 @@
+---
+# This playbook deploys the whole application stack in this site.
+
+- name: Install Modsecurity
+  hosts: modsec
+  remote_user: centos
+  sudo: yes
+
+  roles:
+    - sardpost.modsecurity
+    - yaegashi.blockinfile
