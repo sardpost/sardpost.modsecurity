@@ -27,7 +27,8 @@ Including an example of how to use your role (for instance, with variables passe
     - name: Install Modsecurity
       hosts: modsec
       remote_user: centos
-      sudo: yes
+      become: yes
+      become_method: sudo
 
       roles:
         - sardpost.modsecurity
